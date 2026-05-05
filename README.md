@@ -40,3 +40,11 @@ sensor fotoletronico barreira de luz para interromper criando um sistema que det
 
 
    
+codigo c++ pseudocodigo:
+
+ Impressora DTG — Controle de segurança da esteira enum EstadoEsteira { PARADA, ESTAMPANDO, EJETANDO, ERRO }
+; enum EstadoSensor { LIVRE, OBSTRUIDO }; 
+EstadoEsteira estadoAtual = PARADA;
+ EstadoSensor sensorFrontal = LIVRE;
+ bool estampaFinalizada = false;
+ // ─── Loop principal ────────────────────────────────────────── while (maquinaLigada) { lerSensores(sensorFrontal); // lê sensores de presença/barreira switch (estadoAtual) { case ESTAMPANDO: executarEstampa(); if (estampaCompleta()) { estampaFinalizada = true; estadoAtual = EJETANDO; } break; case EJETANDO: // ⚠️ Fase crítica: nenhuma obstrução permitida if (sensorFrontal == OBSTRUIDO) { pararEsteira(); emitirAlerta("OBSTRUÇÃO DETECTADA — remova antes de continuar"); estadoAtual = ERRO; } else { moverEsteiraParaFrente(); if (pecaEjetada()) { estampaFinalizada = false; estadoAtual = PARADA; } } break; case ERRO: aguardarInteracaoOperador(); if (sensorFrontal == LIVRE && operadorConfirmou()) { resetarSistema(); estadoAtual = PARADA; } break; case PARADA: default: aguardarNovaPeca(); break; } }
