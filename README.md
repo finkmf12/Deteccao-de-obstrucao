@@ -50,29 +50,57 @@ EstadoEsteira estadoAtual = PARADA;
  // ─── Loop principal ────────────────────────────────────────── while (maquinaLigada) { lerSensores(sensorFrontal); // lê sensores de presença/barreira switch (estadoAtual) { case ESTAMPANDO: executarEstampa(); if (estampaCompleta()) { estampaFinalizada = true; estadoAtual = EJETANDO; } break; case EJETANDO: // ⚠️ Fase crítica: nenhuma obstrução permitida if (sensorFrontal == OBSTRUIDO) { pararEsteira(); emitirAlerta("OBSTRUÇÃO DETECTADA — remova antes de continuar"); estadoAtual = ERRO; } else { moverEsteiraParaFrente(); if (pecaEjetada()) { estampaFinalizada = false; estadoAtual = PARADA; } } break; case ERRO: aguardarInteracaoOperador(); if (sensorFrontal == LIVRE && operadorConfirmou()) { resetarSistema(); estadoAtual = PARADA; } break; case PARADA: default: aguardarNovaPeca(); break; } }
 
 
-codigo arduino:
-#include <UltrasonicSensor.h>//by Erick Simões versão 3.0.0
-#include <Servo.h>
-Servo meuServo;
+Código Arduino:
 
-UltrasonicSensor ultrasonic(5, 6); //porta onde está conectado o trigger e o echo, respectivamente
+#include <UltrasonicSensor.h>  // Biblioteca para controlar o sensor ultrassônico
+#include <Servo.h>             // Biblioteca para controlar o servo motor
+
+Servo meuServo; // Cria um objeto chamado "meuServo"
+
+// Define os pinos do sensor ultrassônico
+// Primeiro número = Trigger (envia o pulso)
+// Segundo número = Echo (recebe o retorno do pulso)
+UltrasonicSensor ultrasonic(5, 6);
+
+// Variável que armazenará a distância medida pelo sensor
 int distancia;
 
 void setup() {
+
+  // Inicia a comunicação serial com o computador
+  // Velocidade de transmissão: 9600 bits por segundo
   Serial.begin(9600);
+
+  // Conecta o servo motor ao pino digital 8
   meuServo.attach(8);
 }
 
 void loop() {
- distancia = ultrasonic.distanceInCentimeters();
- 
+
+  // Realiza uma medição e salva a distância em centímetros
+  distancia = ultrasonic.distanceInCentimeters();
+
+  // Exibe uma mensagem no Monitor Serial
   Serial.print("Distancia em cm: ");
+
+  // Exibe o valor da distância medida
   Serial.println(distancia);
+
+  // Pequena pausa para evitar leituras excessivas
   delay(800);
 
-  if(distancia>10){
+  // Verifica se o objeto está a mais de 10 cm do sensor
+  if (distancia > 10) {
+
+    // Move o servo para a posição de 0 graus
+    // Exemplo: tampa fechada
     meuServo.write(0);
-    } else {
+
+  } else {
+
+    // Caso o objeto esteja a 10 cm ou menos
+    // Move o servo para 130 graus
+    // Exemplo: tampa aberta
     meuServo.write(130);
   }
 }
