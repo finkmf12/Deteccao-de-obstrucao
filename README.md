@@ -51,28 +51,53 @@ EstadoEsteira estadoAtual = PARADA;
 
 
 codigo arduino:
-#include <UltrasonicSensor.h>//by Erick Simões versão 3.0.0
-#include <Servo.h>
-Servo meuServo;
+#include <UltrasonicSensor.h> // Biblioteca para controlar o sensor ultrassônico
+#include <Servo.h> // Biblioteca para controlar o servo motor
 
-UltrasonicSensor ultrasonic(5, 6); //porta onde está conectado o trigger e o echo, respectivamente
+Servo meuServo; // Cria um objeto chamado "meuServo"
+
+// Define os pinos do sensor ultrassônico
+// Primeiro número = Trigger (envia o pulso)
+// Segundo número = Echo (recebe o retorno do pulso)
+UltrasonicSensor ultrasonic(5, 6);
+
+// Variável que armazenará a distância medida pelo sensor
 int distancia;
 
 void setup() {
-  Serial.begin(9600);
-  meuServo.attach(8);
+
+// Inicia a comunicação serial com o computador
+// Velocidade de transmissão: 9600 bits por segundo
+Serial.begin(9600);
+
+// Conecta o servo motor ao pino digital 8
+meuServo.attach(8);
 }
 
 void loop() {
- distancia = ultrasonic.distanceInCentimeters();
- 
-  Serial.print("Distancia em cm: ");
-  Serial.println(distancia);
-  delay(800);
 
-  if(distancia>10){
-    meuServo.write(0);
-    } else {
-    meuServo.write(130);
-  }
-}
+// Realiza uma medição e salva a distância em centímetros
+distancia = ultrasonic.distanceInCentimeters();
+
+// Exibe uma mensagem no Monitor Serial
+Serial.print("Distancia em cm: ");
+
+// Exibe o valor da distância medida
+Serial.println(distancia);
+
+// Pequena pausa para evitar leituras excessivas
+delay(800);
+
+// Verifica se o objeto está a mais de 10 cm do sensor
+if (distancia > 10) {
+
+// Move o servo para a posição de 0 graus
+// Exemplo: tampa fechada
+meuServo.write(0);
+
+} else {
+
+// Caso o objeto esteja a 10 cm ou menos
+// Move o servo para 130 graus
+// Exemplo: tampa aberta
+meuServo.write(130);
